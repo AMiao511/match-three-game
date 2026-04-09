@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="纳税明细" />
+<title>纳税明细</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { background: #F2F2F7; font-family: -apple-system, 'SF Pro Text', 'PingFang SC', 'Helvetica Neue', sans-serif; font-weight: 400; -webkit-font-smoothing: antialiased; }
+  #root { width: 100%; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script>
+const { useState, createElement: h } = React;
+
+const DEFAULT_DATA = {
+  2026: {
+    summary: { totalIncome: "370520.00", totalTax: "70584.97" },
+    records: [
+      { id: 2026021, month: "2026-02", type: "工资薪金", subtype: "正常工资薪金", payer: "京东城市（北京）数字科...", income: "46280.00", tax: "2872.37" },
+      { id: 2026022, month: "2026-02", type: "工资薪金", subtype: "全年一次性奖金收入", payer: "京东城市（北京）数字科...", income: "277680.00", tax: "66760.00" },
+      { id: 2026011, month: "2026-01", type: "工资薪金", subtype: "正常工资薪金", payer: "京东城市（北京）数字科...", income: "46280.00", tax: "951.60" },
+    ],
+  },
+  2025: {
+    summary: { totalIncome: "752652.89", totalTax: "88693.79" },
+    records: [
+      { id: 2025121, month: "2025-12", type: "工资薪金", subtype: "正常工资薪金", payer: "京东城市（北京）数字科...", income: "46280.00", tax: "7554.96" },
+      { id: 2025111, month: "2025-11", type: "工资薪金", subtype: "正常工资薪金", payer: "京东城市（北京）数字科...", income: "46280.00", tax: "6280.51" },
+      { id: 2025101, month: "2025-10", type: "工资薪金", subtype: "正常工资薪金", payer: "京东城市（北京）数字科...", income: "46280.00", tax: "6043.97" },
+      { id: 2025103, month: "2025-10", type: "工资薪金", subtype: "个人股权激励收入", payer: "京东城市（北京）数字科...", income: "3073.25", tax: "92.20" },
+      { id: 2025091, month: "2025-09", type: "工资薪金", subtype: "正常工资薪金", payer: "京东城市（北京）数字科...", income: "46280.00", tax: "5996.59" },
+      { id: 2025081, month: "2025-08", type: "工资薪金", subtype: "正常工资薪金", payer: "京东城市（北京）数字科...", income: "46280.00", tax: "6067.65" },
+      { id: 2025071, month: "2025-07", type: "工资薪金", subtype: "正常工资薪金", payer: "京东城市（北京）数字科...", income: "46280.00", tax: "6067.66" },
+      { id: 2025061, month: "2025-06", type: "工资薪金", subtype: "正常工资薪金", payer: "京东城市（北京）数字科...", income: "46280.00", tax: "3996.99" },
+      { id: 2025051, month: "2025-05", type: "工资薪金", subtype: "正常工资薪金", payer: "京东城市（北京）数字科...", income: "46657.01", tax: "3071.53" },
+      { id: 2025041, month: "2025-04", type: "工资薪金", subtype: "正常工资薪金", payer: "京东城市（北京）数字科...", income: "47843.19", tax: "2590.14" },
+      { id: 2025043, month: "2025-04", type: "工资薪金", subtype: "个人股权激励收入", payer: "京东城市（北京）数字科...", income: "7159.44", tax: "214.78" },
+      { id: 2025031, month: "2025-03", type: "工资薪金", subtype: "正常工资薪金", payer: "京东城市（北京）数字科...", income: "46280.00", tax: "3147.51" },
+      { id: 2025021, month: "2025-02", type: "工资薪金", subtype: "正常工资薪金", payer: "京东城市（北京）数字科...", income: "46280.00", tax: "1000.15" },
+      { id: 2025022, month: "2025-02", type: "工资薪金", subtype: "全年一次性奖金收入", payer: "京东城市（北京）数字科...", income: "185120.00", tax: "35614.00" },
+      { id: 2025011, month: "2025-01", type: "工资薪金", subtype: "正常工资薪金", payer: "京东城市（北京）数字科...", income: "46280.00", tax: "955.15" },
+    ],
+  },
+  2024: {
+    summary: { totalIncome: "739376.27", totalTax: "94168.89" },
+    records: [
+      { id: 2024121, month: "2024-12", type: "工资薪金", subtype: "正常工资薪金", payer: "京东城市（北京）数字科...", income: "46280.00", tax: "7584.57" },
+      { id: 2024111, month: "2024-11", type: "工资薪金", subtype: "正常工资薪金", payer: "京东城市（北京）数字科...", income: "46280.00", tax: "7058.71" },
+      { id: 2024101, month: "2024-10", type: "工资薪金", subtype: "正常工资薪金", payer: "京东城市（北京）数字科...", income: "46280.00", tax: "6067.66" },
+      { id: 2024091, month: "2024-09", type: "工资薪金", subtype: "正常工资薪金", payer: "京东城市（北京）数字科...", income: "46280.00", tax: "6067.66" },
+      { id: 2024081, month: "2024-08", type: "工资薪金", subtype: "正常工资薪金", payer: "京东城市（北京）数字科...", income: "46280.00", tax: "6005.02" },
+      { id: 2024071, month: "2024-07", type: "工资薪金", subtype: "正常工资薪金", payer: "京东城市（北京）数字科...", income: "46280.00", tax: "6130.29" },
+      { id: 2024061, month: "2024-06", type: "工资薪金", subtype: "正常工资薪金", payer: "京东城市（北京）数字科...", income: "46280.00", tax: "5478.11" },
+      { id: 2024051, month: "2024-05", type: "工资薪金", subtype: "正常工资薪金", payer: "京东城市（北京）数字科...", income: "46280.00", tax: "3065.15" },
+      { id: 2024041, month: "2024-04", type: "工资薪金", subtype: "正常工资薪金", payer: "京东城市（北京）数字科...", income: "45501.07", tax: "2987.25" },
+      { id: 2024031, month: "2024-03", type: "工资薪金", subtype: "正常工资薪金", payer: "京东城市（北京）数字科...", income: "41280.00", tax: "1965.14" },
+      { id: 2024021, month: "2024-02", type: "工资薪金", subtype: "正常工资薪金", payer: "京东城市（北京）数字科...", income: "41280.00", tax: "2350.75" },
+      { id: 2024022, month: "2024-02", type: "工资薪金", subtype: "全年一次性奖金收入", payer: "京东城市（北京）数字科...", income: "199795.20", tax: "38549.04" },
+      { id: 2024011, month: "2024-01", type: "工资薪金", subtype: "正常工资薪金", payer: "京东城市（北京）数字科...", income: "41280.00", tax: "859.54" },
+    ],
+  },
+};
+
+const C = {
+  bg: "#F2F2F7", card: "#FFFFFF", sepHeavy: "#C6C6C8", sepLight: "#E5E5EA",
+  textPrimary: "#363636", textSecondary: "#9F9F9F", blue: "#007AFF", red: "#FF3B30",
+  navBg: "#FFFFFF", summaryLabel: "#363636", summaryValue: "#363636",
+};
+
+const S = {
+  page: { display:"flex", flexDirection:"column", height:"100%", overflow:"hidden" },
+  navBar: { height:44, background:C.navBg, borderBottom:`0.5px solid ${C.sepLight}`, display:"flex", alignItems:"center", padding:"0 30px 0 16px", flexShrink:0 },
+  navTitle: { fontSize:18, fontWeight:"400", color:C.textPrimary, textAlign:"center", flex:1 },
+  navBtn: { fontSize:15, cursor:"pointer", display:"flex", alignItems:"center", gap:4, width:60, flexShrink:0 },
+  summaryBox: { background:C.card, flexShrink:0 },
+  summaryRow: { display:"flex", justifyContent:"space-between", alignItems:"center", padding:"13px 16px", minHeight:40 },
+  summaryLabel: { fontSize:17, fontWeight:"500", color:C.summaryLabel, display:"flex", alignItems:"center", gap:4 },
+  summaryValue: { fontSize:16, color:C.summaryValue },
+  recordCard: { background:C.card, padding:"20px 18px 18px 16px", display:"flex", flexDirection:"column", gap:4 },
+  recordHeader: { display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:1, marginTop:-4 },
+  recordType: { fontSize:17, color:C.textPrimary },
+  recordMonth: { fontSize:17, color:C.textPrimary, marginRight:32 },
+  recordMeta: { fontSize:16, color:C.textSecondary, lineHeight:"23px", fontWeight:"400" },
+  listSection: { background:C.card, borderRadius:10, overflow:"hidden", marginLeft:16, marginRight:16, borderTop:`0.5px solid ${C.sepHeavy}`, borderBottom:`0.5px solid ${C.sepHeavy}` },
+  yearRow: { display:"flex", justifyContent:"space-between", alignItems:"center", padding:"0 16px", height:44, cursor:"pointer", background:C.card },
+  yearLabel: { fontSize:17, color:C.textPrimary },
+  insetSep: { height:0.5, background:C.sepHeavy, marginLeft:16 },
+  configSection: { marginBottom:20 },
+  configLabel: { fontSize:13, color:C.textSecondary, marginLeft:32, marginBottom:6, textTransform:"uppercase", letterSpacing:0.3 },
+  configInput: { flex:1, border:"none", outline:"none", fontSize:17, color:C.textPrimary, background:"transparent", marginRight:12 },
+  configRow: { display:"flex", alignItems:"center", padding:"0 16px", minHeight:44, background:C.card },
+  configRowLabel: { fontSize:15, color:C.textPrimary, minWidth:110, flexShrink:0 },
+  configRowInput: { flex:1, border:"none", outline:"none", fontSize:15, color:C.textSecondary, background:"transparent", textAlign:"right" },
+};
+
+function ChevronRight() {
+  return h('svg', { width:11, height:18, viewBox:"0 0 8 13", fill:"none" },
+    h('path', { d:"M1 1L7 6.5L1 12", stroke:"#C7C7CC", strokeWidth:1.5, strokeLinecap:"round", strokeLinejoin:"round" })
+  );
+}
+function ChevronLeft() {
+  return h('svg', { width:8, height:13, viewBox:"0 0 8 13", fill:"none" },
+    h('path', { d:"M7 1L1 6.5L7 12", stroke:C.blue, strokeWidth:1.5, strokeLinecap:"round", strokeLinejoin:"round" })
+  );
+}
+function InfoIcon() {
+  return h('svg', { width:17, height:17, viewBox:"0 0 17 17", fill:"none", style:{ verticalAlign:"middle", marginLeft:3, marginRight:-2, flexShrink:0 } },
+    h('circle', { cx:8.5, cy:8.5, r:7.5, stroke:"#4A7FD4", strokeWidth:1, fill:"white" }),
+    h('text', { x:8.5, y:13, textAnchor:"middle", fontSize:13, fill:"#4A7FD4", fontFamily:"-apple-system, Helvetica Neue, sans-serif", fontWeight:"400" }, "?")
+  );
+}
+
+function YearPage({ years, onSelect, onConfig }) {
+  return h('div', { style: S.page },
+    h('div', { style: S.navBar },
+      h('span', { style:{ ...S.navBtn, color:C.blue }, onClick: onConfig }, "配置"),
+      h('span', { style: S.navTitle }, "选择年份"),
+      h('span', { style:{ ...S.navBtn, color:"transparent" } }, "配置")
+    ),
+    h('div', { style:{ flex:1, overflowY:"auto", background:C.bg, paddingTop:8 } },
+      h('div', { style: S.listSection },
+        years.map((y, i) => h('div', { key: y },
+          h('div', { style: S.yearRow, onClick: () => onSelect(y) },
+            h('span', { style: S.yearLabel }, `${y}年度`),
+            h(ChevronRight)
+          ),
+          i < years.length - 1 ? h('div', { style: S.insetSep }) : null
+        ))
+      )
+    )
+  );
+}
+
+function DetailPage({ data, onBack }) {
+  if (!data) return null;
+  const { summary, records } = data;
+  return h('div', { style: S.page },
+    h('div', { style: S.navBar },
+      h('span', { style:{ ...S.navBtn, color:C.blue, display:"flex", alignItems:"center", gap:2 }, onClick: onBack },
+        h(ChevronLeft), " 返回"
+      ),
+      h('span', { style: S.navTitle }, "收入纳税明细"),
+      h('span', { style:{ ...S.navBtn, color:C.blue } }, "批量申诉")
+    ),
+    h('div', { style:{ height:11, background:C.bg, flexShrink:0 } }),
+    h('div', { style: S.summaryBox },
+      h('div', { style:{ ...S.summaryRow, paddingTop:16, paddingBottom:10 } },
+        h('span', { style: S.summaryLabel }, "收入合计 ", h(InfoIcon), "："),
+        h('span', { style:{ ...S.summaryValue, fontWeight:"500" } }, `${summary.totalIncome}元`)
+      ),
+      h('div', { style:{ height:0.5, background:C.sepLight } }),
+      h('div', { style:{ ...S.summaryRow, paddingTop:11, paddingBottom:16 } },
+        h('span', { style:{ ...S.summaryLabel, fontWeight:"500" } }, "已申报税额合计："),
+        h('span', { style:{ ...S.summaryValue, fontWeight:"500" } }, `${summary.totalTax}元`)
+      )
+    ),
+    h('div', { style:{ height:13, background:C.bg, flexShrink:0 } }),
+    h('div', { style:{ flex:1, overflowY:"auto", background:C.bg } },
+      records.map(r => h(RecordCard, { key: r.id, record: r }))
+    )
+  );
+}
+
+function RecordCard({ record }) {
+  return h(React.Fragment, null,
+    h('div', { style: S.recordCard },
+      h('div', { style: S.recordHeader },
+        h('span', { style: S.recordType }, record.type),
+        h('span', { style: S.recordMonth }, record.month)
+      ),
+      h('div', { style: S.recordMeta }, `所得项目小类：${record.subtype}`),
+      h('div', { style:{ display:"flex", justifyContent:"space-between", alignItems:"center" } },
+        h('span', { style: S.recordMeta }, `扣缴义务人：${record.payer}`),
+        h(ChevronRight)
+      ),
+      h('div', { style: S.recordMeta }, `收入：${record.income}元`),
+      h('div', { style: S.recordMeta }, `已申报税额：${record.tax}元`)
+    ),
+    h('div', { style:{ height:13, background:C.bg } })
+  );
+}
+
+function ConfigPage({ appData, setAppData, onBack }) {
+  const [view, setView] = useState("main");
+  const [editingYear, setEditingYear] = useState(null);
+  const [editingRecord, setEditingRecord] = useState(null);
+  const [newYear, setNewYear] = useState("");
+  const emptyForm = { month:"", type:"工资薪金", subtype:"", payer:"", income:"", tax:"" };
+  const [form, setForm] = useState(emptyForm);
+  const years = Object.keys(appData).map(Number).sort((a,b) => b-a);
+
+  function addYear() {
+    const y = parseInt(newYear);
+    if (!y || appData[y]) return;
+    setAppData(prev => ({ ...prev, [y]:{ summary:{ totalIncome:"0.00", totalTax:"0.00" }, records:[] } }));
+    setNewYear("");
+  }
+  function deleteYear(y) {
+    if (!window.confirm(`确认删除 ${y} 年？`)) return;
+    setAppData(prev => { const n={...prev}; delete n[y]; return n; });
+  }
+  function saveSummary(field, val) {
+    setAppData(prev => ({ ...prev, [editingYear]:{ ...prev[editingYear], summary:{ ...prev[editingYear].summary, [field]:val } } }));
+  }
+  function openAddRecord(y) { setEditingYear(y); setForm({...emptyForm, month:`${y}-01`}); setEditingRecord(null); setView("editRecord"); }
+  function openEditRecord(y, rec) { setEditingYear(y); setForm({ month:rec.month, type:rec.type, subtype:rec.subtype, payer:rec.payer, income:rec.income, tax:rec.tax }); setEditingRecord({ year:y, id:rec.id }); setView("editRecord"); }
+  function saveRecord() {
+    setAppData(prev => {
+      const yr = {...prev[editingYear]};
+      yr.records = editingRecord ? yr.records.map(r => r.id===editingRecord.id ? {...r,...form} : r) : [{id:Date.now(),...form},...yr.records];
+      return {...prev, [editingYear]:yr};
+    });
+    setView("editYear");
+  }
+  function deleteRecord(y, id) { setAppData(prev => ({ ...prev, [y]:{ ...prev[y], records:prev[y].records.filter(r=>r.id!==id) } })); }
+
+  if (view === "main") return h('div', { style: S.page },
+    h('div', { style: S.navBar },
+      h('span', { style:{ ...S.navBtn, color:C.blue, display:"flex", alignItems:"center", gap:2 }, onClick: onBack }, h(ChevronLeft), " 返回"),
+      h('span', { style: S.navTitle }, "数据配置"),
+      h('span', { style:{ width:60 } })
+    ),
+    h('div', { style:{ flex:1, overflowY:"auto", background:C.bg, paddingTop:20 } },
+      h('div', { style: S.configSection },
+        h('div', { style: S.configLabel }, "添加年份"),
+        h('div', { style: S.listSection },
+          h('div', { style:{ display:"flex", alignItems:"center", padding:"0 16px", height:44, background:C.card } },
+            h('input', { style: S.configInput, placeholder:"输入年份，如 2023", value:newYear, onChange:e=>setNewYear(e.target.value), type:"number" }),
+            h('span', { style:{ color:C.blue, fontWeight:"500", cursor:"pointer", flexShrink:0 }, onClick: addYear }, "添加")
+          )
+        )
+      ),
+      h('div', { style: S.configSection },
+        h('div', { style: S.configLabel }, "年份列表"),
+        h('div', { style: S.listSection },
+          years.map((y,i) => h('div', { key:y },
+            h('div', { style:{ display:"flex", alignItems:"center", padding:"0 16px", height:44, background:C.card } },
+              h('span', { style:{ flex:1, fontSize:17 } }, `${y}年`),
+              h('span', { style:{ color:C.blue, marginRight:16, cursor:"pointer" }, onClick:()=>{ setEditingYear(y); setView("editYear"); } }, "编辑"),
+              h('span', { style:{ color:C.red, cursor:"pointer" }, onClick:()=>deleteYear(y) }, "删除")
+            ),
+            i < years.length-1 ? h('div', { style: S.insetSep }) : null
+          ))
+        )
+      )
+    )
+  );
+
+  if (view === "editYear" && editingYear) {
+    const yr = appData[editingYear];
+    return h('div', { style: S.page },
+      h('div', { style: S.navBar },
+        h('span', { style:{ ...S.navBtn, color:C.blue, display:"flex", alignItems:"center", gap:2 }, onClick:()=>setView("main") }, h(ChevronLeft), " 返回"),
+        h('span', { style: S.navTitle }, `${editingYear}年 · 编辑`),
+        h('span', { style:{ width:60 } })
+      ),
+      h('div', { style:{ flex:1, overflowY:"auto", background:C.bg, paddingTop:20 } },
+        h('div', { style: S.configSection },
+          h('div', { style: S.configLabel }, "汇总数据"),
+          h('div', { style: S.listSection },
+            h('div', { style: S.configRow },
+              h('span', { style: S.configRowLabel }, "收入合计（元）"),
+              h('input', { style: S.configRowInput, value:yr.summary.totalIncome, onChange:e=>saveSummary("totalIncome",e.target.value) })
+            ),
+            h('div', { style: S.insetSep }),
+            h('div', { style: S.configRow },
+              h('span', { style: S.configRowLabel }, "已申报税额（元）"),
+              h('input', { style: S.configRowInput, value:yr.summary.totalTax, onChange:e=>saveSummary("totalTax",e.target.value) })
+            )
+          )
+        ),
+        h('div', { style: S.configSection },
+          h('div', { style:{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 } },
+            h('div', { style: S.configLabel }, "月度记录"),
+            h('span', { style:{ color:C.blue, fontSize:15, marginRight:16, cursor:"pointer" }, onClick:()=>openAddRecord(editingYear) }, "+ 添加")
+          ),
+          h('div', { style: S.listSection },
+            yr.records.length === 0 ? h('div', { style:{ padding:"12px 16px", color:C.textSecondary, fontSize:15, background:C.card } }, "暂无记录") : null,
+            yr.records.map((r,i) => h('div', { key:r.id },
+              h('div', { style:{ display:"flex", alignItems:"center", padding:"8px 16px", background:C.card, minHeight:44 } },
+                h('div', { style:{ flex:1 } },
+                  h('div', { style:{ fontSize:15, fontWeight:"500" } }, `${r.month} · ${r.subtype}`),
+                  h('div', { style:{ fontSize:13, color:C.textSecondary } }, `收入 ${r.income} / 税 ${r.tax}`)
+                ),
+                h('span', { style:{ color:C.blue, marginRight:16, cursor:"pointer", fontSize:15 }, onClick:()=>openEditRecord(editingYear,r) }, "编辑"),
+                h('span', { style:{ color:C.red, cursor:"pointer", fontSize:15 }, onClick:()=>deleteRecord(editingYear,r.id) }, "删除")
+              ),
+              i < yr.records.length-1 ? h('div', { style: S.insetSep }) : null
+            ))
+          )
+        )
+      )
+    );
+  }
+
+  if (view === "editRecord") {
+    const fields = [
+      { key:"month", label:"月份", placeholder:"如 2025-03" },
+      { key:"type", label:"类型", placeholder:"如 工资薪金" },
+      { key:"subtype", label:"所得项目小类", placeholder:"如 正常工资薪金" },
+      { key:"payer", label:"扣缴义务人", placeholder:"单位名称" },
+      { key:"income", label:"收入（元）", placeholder:"如 36280.00" },
+      { key:"tax", label:"已申报税额（元）", placeholder:"如 1540.56" },
+    ];
+    return h('div', { style: S.page },
+      h('div', { style: S.navBar },
+        h('span', { style:{ ...S.navBtn, color:C.blue, display:"flex", alignItems:"center", gap:2 }, onClick:()=>setView("editYear") }, h(ChevronLeft), " 返回"),
+        h('span', { style: S.navTitle }, editingRecord ? "编辑记录" : "添加记录"),
+        h('span', { style:{ ...S.navBtn, color:C.blue }, onClick: saveRecord }, "保存")
+      ),
+      h('div', { style:{ flex:1, overflowY:"auto", background:C.bg, paddingTop:20 } },
+        h('div', { style: S.listSection },
+          fields.map((f,i) => h('div', { key:f.key },
+            h('div', { style: S.configRow },
+              h('span', { style:{ ...S.configRowLabel, minWidth:130 } }, f.label),
+              h('input', { style: S.configRowInput, placeholder:f.placeholder, value:form[f.key], onChange:e=>setForm(prev=>({...prev,[f.key]:e.target.value})) })
+            ),
+            i < fields.length-1 ? h('div', { style: S.insetSep }) : null
+          ))
+        )
+      )
+    );
+  }
+  return null;
+}
+
+function App() {
+  const [appData, setAppData] = useState(DEFAULT_DATA);
+  const [page, setPage] = useState("year");
+  const [selectedYear, setSelectedYear] = useState(null);
+  const years = Object.keys(appData).map(Number).sort((a,b) => b-a);
+  return h('div', { style:{ width:"100%", height:"100vh", background:C.bg, display:"flex", flexDirection:"column", overflow:"hidden" } },
+    page === "year" && h(YearPage, { years, onSelect:(y)=>{ setSelectedYear(y); setPage("detail"); }, onConfig:()=>setPage("config") }),
+    page === "detail" && h(DetailPage, { data:appData[selectedYear], onBack:()=>setPage("year") }),
+    page === "config" && h(ConfigPage, { appData, setAppData, onBack:()=>setPage("year") })
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(h(App));
+</script>
+</body>
+</html>
